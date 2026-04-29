@@ -1,0 +1,51 @@
+.scroll-truck-container {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  height: 50px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.scroll-truck {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-size: 40px;
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+
+.scroll-progress-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #2f7a36;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  pointer-events: auto;
+  box-shadow: 0 2px 8px rgba(47, 122, 54, 0.3);
+}
+
+@media (max-width: 768px) {
+  .scroll-truck {
+    font-size: 32px;
+  }
+
+  .scroll-progress-indicator {
+    bottom: 16px;
+    right: 16px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-truck {
+    display: none;
+  }
+}
