@@ -84,7 +84,8 @@ async function listAvailableModels() {
   const response = await axios.get(`${FEATHERLESS_BASE_URL}/models`, {
     headers: {
       Authorization: `Bearer ${process.env.FEATHERLESS_API_KEY}`
-    }
+    },
+    timeout: 10000 // 10 second timeout
   });
 
   return Array.isArray(response.data?.data) ? response.data.data : [];
@@ -163,7 +164,8 @@ Return JSON:
     {
       headers: {
         Authorization: `Bearer ${process.env.FEATHERLESS_API_KEY}`
-      }
+      },
+      timeout: 15000 // 15 second timeout for analysis
     }
   );
 
