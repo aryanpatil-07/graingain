@@ -105,6 +105,14 @@ body {
   border-top: 4px solid #48d39d;
 }
 
+.section-healthcare {
+  border-top: 4px solid #7ab7ff;
+}
+
+.health-grid .impact-card h3 {
+  color: #ebf4ff;
+}
+
 .impact-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

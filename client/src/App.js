@@ -87,6 +87,22 @@ function App() {
       .slice(0, 3);
   }, [monitoredCentres]);
 
+  const publicHealthMetrics = useMemo(() => {
+    const nutritionAccessMeals = Math.round(environmentTotals.totalSurplusMeals * 0.72);
+    const emergencyMealCapacity = Math.round(environmentTotals.totalSurplusMeals * 0.35);
+    const affordableRoutingSavingsPct = 28;
+    const qualityComplianceRate = 98;
+    const crisisResponseTimeMinutes = Math.max(18, Math.round(etaMinutes * 0.75));
+
+    return {
+      nutritionAccessMeals,
+      emergencyMealCapacity,
+      affordableRoutingSavingsPct,
+      qualityComplianceRate,
+      crisisResponseTimeMinutes
+    };
+  }, [environmentTotals.totalSurplusMeals, etaMinutes]);
+
 
   // Handle location change from map
   const handleLocationChange = useCallback((location) => {
@@ -210,6 +226,59 @@ function App() {
                 </div>
               </article>
             ))}
+          </div>
+        </section>
+
+        {/* Phase 2: Public Health / Healthcare */}
+        <section className="section section-healthcare">
+          <div className="section-heading-row">
+            <h2>🏥 Phase 2: Public Health & Healthcare Access</h2>
+            <span className="data-chip">AI scenario + operational mock data</span>
+          </div>
+          <p className="section-subtext">
+            GrainGain routes safe, nutritious meals to people quickly, helping cities respond during everyday shortages and
+            crisis spikes.
+          </p>
+
+          <div className="impact-grid health-grid">
+            <article className="impact-card mirror-card">
+              <p>Nutrition access today</p>
+              <h3>{publicHealthMetrics.nutritionAccessMeals} meals</h3>
+            </article>
+            <article className="impact-card mirror-card">
+              <p>Emergency meal capacity</p>
+              <h3>{publicHealthMetrics.emergencyMealCapacity} meals</h3>
+            </article>
+            <article className="impact-card mirror-card">
+              <p>Affordable route savings</p>
+              <h3>{publicHealthMetrics.affordableRoutingSavingsPct}%</h3>
+            </article>
+            <article className="impact-card mirror-card">
+              <p>Fast crisis response</p>
+              <h3>{publicHealthMetrics.crisisResponseTimeMinutes} min</h3>
+            </article>
+          </div>
+
+          <div className="surplus-cards">
+            <article className="surplus-card mirror-card">
+              <h3>🚨 Emergency Food Supply</h3>
+              <p className="surplus-location">Mock crisis scenario: localized flood impact in 2 wards</p>
+              <div className="surplus-metrics">
+                <span>Meals mobilized in 90 min: {Math.round(publicHealthMetrics.emergencyMealCapacity * 0.6)}</span>
+                <span>Priority beneficiaries: children, elderly, daily-wage families</span>
+                <span>Dynamic rerouting keeps delivery costs low for NGOs</span>
+              </div>
+            </article>
+
+            <article className="surplus-card mirror-card">
+              <h3>✅ Safe Edible-Food Verification</h3>
+              <p className="surplus-location">Independent quality workflow with ITC-aligned protocol</p>
+              <div className="surplus-metrics">
+                <span>Quality checks compliance: {publicHealthMetrics.qualityComplianceRate}%</span>
+                <span>Visual, temperature, and handling checks before dispatch</span>
+                <span>Escalation path for lab-tested sampling via verified partner network</span>
+              </div>
+            </article>
           </div>
         </section>
 
