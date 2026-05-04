@@ -251,21 +251,33 @@ function App() {
       });
 
       console.log("🔍 DEBUG: Response status =", res.status);
-      let result;
       const responseText = await res.text();
       console.log("🔍 DEBUG: Response text =", responseText);
-      
-      try {
-        result = JSON.parse(responseText);
-      } catch (parseErr) {
-        console.error("❌ JSON Parse Error:", parseErr);
-        throw new Error(`Invalid JSON response: ${responseText}`);
+
+      let result = null;
+      if (responseText.trim().length > 0) {
+        try {
+          result = JSON.parse(responseText);
+        } catch (parseErr) {
+          console.error("❌ JSON Parse Error:", parseErr);
+          throw new Error(`Server returned non-JSON response: ${responseText}`);
+        }
       }
-      
+
       console.log("🔍 DEBUG: Response body =", result);
 
       if (!res.ok) {
-        throw new Error(`Analyze request failed (${res.status}): ${result.message || JSON.stringify(result)}`);
+        const responseMessage =
+          result?.message ||
+          result?.error ||
+          responseText.trim() ||
+          `Request failed with status ${res.status}`;
+
+        throw new Error(`Analyze request failed (${res.status}): ${responseMessage}`);
+      }
+
+      if (!result) {
+        throw new Error("Analyze request returned an empty response.");
       }
 
       setData(result);
