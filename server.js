@@ -19,9 +19,14 @@ app.get("/health", (req, res) => {
 // Main analyze endpoint
 app.post("/analyze", async (req, res) => {
   try {
+    console.log("📨 POST /analyze received");
+    console.log("🔍 DEBUG: req.body =", req.body);
+    
     const { description } = req.body;
+    console.log("🔍 DEBUG: description =", description);
 
     if (!description || typeof description !== "string" || description.trim().length === 0) {
+      console.log("❌ Invalid description");
       return res.status(400).json({
         error: "Invalid request",
         message: "Please provide a non-empty 'description' field"
@@ -36,12 +41,13 @@ app.post("/analyze", async (req, res) => {
     }
 
     const result = await analyzeFood(description.trim());
+    console.log("✅ Analysis complete:", result);
     res.json(result);
   } catch (err) {
-    console.error("Analyze endpoint error:", err.message);
+    console.error("❌ Analyze endpoint error:", err);
     res.status(500).json({
       error: "Server error",
-      message: "Unable to analyze food. Please try again later."
+      message: err.message || "Unable to analyze food. Please try again later."
     });
   }
 });
@@ -61,6 +67,17 @@ app.get("/test-ai", async (req, res) => {
   }
 });
 
+// Debug endpoint
+app.get("/debug", (req, res) => {
+  res.json({
+    status: "ok",
+    env_check: {
+      has_api_key: !!process.env.FEATHERLESS_API_KEY,
+      has_model: !!process.env.FEATHERLESS_MODEL,
+      port: PORT
+    }
+  });
+});
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({

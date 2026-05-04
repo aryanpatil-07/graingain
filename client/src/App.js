@@ -237,7 +237,12 @@ function App() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:5000/analyze", {
+      const apiUrl = process.env.REACT_APP_API_URL;
+      console.log("🔍 DEBUG: API URL =", apiUrl);
+      console.log("🔍 DEBUG: Full endpoint =", `${apiUrl}/analyze`);
+      console.log("🔍 DEBUG: Request body =", { description: input });
+
+      const res = await fetch(`${apiUrl}/analyze`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -245,13 +250,27 @@ function App() {
         body: JSON.stringify({ description: input })
       });
 
+      console.log("🔍 DEBUG: Response status =", res.status);
+      let result;
+      const responseText = await res.text();
+      console.log("🔍 DEBUG: Response text =", responseText);
+      
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseErr) {
+        console.error("❌ JSON Parse Error:", parseErr);
+        throw new Error(`Invalid JSON response: ${responseText}`);
+      }
+      
+      console.log("🔍 DEBUG: Response body =", result);
+
       if (!res.ok) {
-        throw new Error(`Analyze request failed (${res.status})`);
+        throw new Error(`Analyze request failed (${res.status}): ${result.message || JSON.stringify(result)}`);
       }
 
-      const result = await res.json();
       setData(result);
     } catch (err) {
+      console.error("❌ ERROR:", err);
       setError(err.message || "Failed to analyze food.");
       setData(null);
     } finally {
