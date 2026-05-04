@@ -155,6 +155,8 @@ export function MapNearest({
           <h4 style="margin:0 0 8px 0;color:#2f7a36;">${centre.name}</h4>
           <p style="margin:4px 0;font-size:12px;">📍 ${centre.address}</p>
           <p style="margin:4px 0;font-size:12px;">🚚 Capacity: ${centre.capacity} meals</p>
+          ${typeof centre.wasteKgPerDay === 'number' ? `<p style="margin:4px 0;font-size:12px;">♻️ AI waste estimate: ${centre.wasteKgPerDay.toFixed(1)} kg/day</p>` : ''}
+          ${typeof centre.predictedSurplusMeals === 'number' ? `<p style="margin:4px 0;font-size:12px;">🥘 Predicted surplus: ${centre.predictedSurplusMeals} meals/day</p>` : ''}
           ${isNearest ? '<p style="margin:8px 0;color:#2f7a36;font-weight:bold;">✓ Nearest centre</p>' : ''}
         </div>
       `;

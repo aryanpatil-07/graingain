@@ -1,9 +1,33 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { MapNearest } from "./components/MapNearest";
 import { DeliverySlider } from "./components/DeliverySlider";
 import { LogisticsSummary } from "./components/LogisticsSummary";
 import { ScrollTruck } from "./components/ScrollTruck";
+import { CENTRES } from "./data/centres";
 import "./App.css";
+
+const DEMO_DATA_LABEL = "AI-assumed demo insights";
+
+function hashId(value) {
+  return value.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+}
+
+function estimateEnvironmentalMetrics(centre, sliderHours) {
+  const seed = hashId(centre.id);
+  const wasteKgPerDay = Number((16 + (seed % 22) + sliderHours * 0.8).toFixed(1));
+  const predictedSurplusMeals = Math.round(wasteKgPerDay * 2.7);
+  const methaneRiskKgCO2e = Number((wasteKgPerDay * 2.3).toFixed(1));
+  const landfillLoadKg = Number((wasteKgPerDay * 0.84).toFixed(1));
+
+  return {
+    ...centre,
+    wasteKgPerDay,
+    predictedSurplusMeals,
+    methaneRiskKgCO2e,
+    landfillLoadKg,
+    dataSource: DEMO_DATA_LABEL
+  };
+}
 
 function App() {
   const [input, setInput] = useState("");
@@ -34,6 +58,35 @@ function App() {
   };
 
   const urgency = data ? deriveUrgency(data.expiry_hours, etaMinutes / 60) : "MEDIUM";
+
+  const monitoredCentres = useMemo(
+    () => CENTRES.map((centre) => estimateEnvironmentalMetrics(centre, sliderHours)),
+    [sliderHours]
+  );
+
+  const environmentTotals = useMemo(() => {
+    return monitoredCentres.reduce(
+      (totals, centre) => ({
+        totalWaste: totals.totalWaste + centre.wasteKgPerDay,
+        totalSurplusMeals: totals.totalSurplusMeals + centre.predictedSurplusMeals,
+        totalMethaneRisk: totals.totalMethaneRisk + centre.methaneRiskKgCO2e,
+        totalLandfillLoad: totals.totalLandfillLoad + centre.landfillLoadKg
+      }),
+      {
+        totalWaste: 0,
+        totalSurplusMeals: 0,
+        totalMethaneRisk: 0,
+        totalLandfillLoad: 0
+      }
+    );
+  }, [monitoredCentres]);
+
+  const highImpactCentres = useMemo(() => {
+    return [...monitoredCentres]
+      .sort((a, b) => b.wasteKgPerDay - a.wasteKgPerDay)
+      .slice(0, 3);
+  }, [monitoredCentres]);
+
 
   // Handle location change from map
   const handleLocationChange = useCallback((location) => {
@@ -115,6 +168,51 @@ function App() {
 
       {/* Main Content */}
       <main className="app-main">
+        {/* Phase 1: Environmental Impact Monitoring */}
+        <section className="section section-environment">
+          <div className="section-heading-row">
+            <h2>🌍 Phase 1: Environmental Impact Monitoring</h2>
+            <span className="data-chip">{DEMO_DATA_LABEL}</span>
+          </div>
+          <p className="section-subtext">
+            Food waste drives methane emissions and landfill overload. GrainGain tracks estimated restaurant waste on the map,
+            predicts daily surplus, and prioritizes rescue routes to reduce environmental pressure.
+          </p>
+
+          <div className="impact-grid">
+            <article className="impact-card mirror-card">
+              <p>Estimated waste / day</p>
+              <h3>{environmentTotals.totalWaste.toFixed(1)} kg</h3>
+            </article>
+            <article className="impact-card mirror-card">
+              <p>Predicted surplus meals</p>
+              <h3>{environmentTotals.totalSurplusMeals}</h3>
+            </article>
+            <article className="impact-card mirror-card">
+              <p>Methane risk (CO₂e)</p>
+              <h3>{environmentTotals.totalMethaneRisk.toFixed(1)} kg/day</h3>
+            </article>
+            <article className="impact-card mirror-card">
+              <p>Landfill overload risk</p>
+              <h3>{environmentTotals.totalLandfillLoad.toFixed(1)} kg/day</h3>
+            </article>
+          </div>
+
+          <div className="surplus-cards">
+            {highImpactCentres.map((centre) => (
+              <article className="surplus-card mirror-card" key={centre.id}>
+                <h3>{centre.name}</h3>
+                <p className="surplus-location">{centre.address}</p>
+                <div className="surplus-metrics">
+                  <span>Waste: {centre.wasteKgPerDay.toFixed(1)} kg/day</span>
+                  <span>Predicted surplus: {centre.predictedSurplusMeals} meals</span>
+                  <span>Methane risk: {centre.methaneRiskKgCO2e.toFixed(1)} kg CO₂e</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
         {/* Food Input Section */}
         <section className="section section-input">
           <h2>📋 Step 1: Describe Your Food</h2>
@@ -159,6 +257,7 @@ function App() {
             <h2 style={{ marginTop: "32px" }}>📍 Step 3: Select Donation Centre</h2>
             <MapNearest
               userLocation={userLocation}
+              centres={monitoredCentres}
               onLocationChange={handleLocationChange}
               onNearestChange={handleNearestChange}
             />
