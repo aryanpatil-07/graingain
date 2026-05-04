@@ -1,39 +1,71 @@
 .scroll-truck-container {
   position: fixed;
-  bottom: 20px;
-  left: 0;
-  right: 0;
-  height: 50px;
+  bottom: 14px;
+  left: 24px;
+  right: 24px;
+  height: 56px;
   pointer-events: none;
-  z-index: 100;
+  z-index: 90;
 }
 
 .scroll-truck {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  font-size: 40px;
-  will-change: transform;
-  transition: transform 0.1s linear;
+  bottom: 8px;
+  will-change: left, transform;
+  transition: left 0.08s linear;
+}
+
+.truck-icon {
+  position: relative;
+  width: 52px;
+  height: 20px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #17d7e3, #5dd8ff);
+  box-shadow: 0 4px 12px rgba(23, 215, 227, 0.35);
+}
+
+.truck-icon::before {
+  content: "";
+  position: absolute;
+  right: -14px;
+  top: 5px;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #6e63ff, #9189ff);
+}
+
+.truck-icon::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  bottom: -8px;
+  width: 40px;
+  height: 8px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(23, 215, 227, 0.6) 0%, rgba(23, 215, 227, 0) 70%);
 }
 
 .scroll-progress-indicator {
   position: fixed;
-  bottom: 20px;
+  bottom: 18px;
   right: 20px;
-  background-color: #2f7a36;
-  color: white;
+  background-color: rgba(11, 24, 43, 0.78);
+  color: #d9ecff;
+  border: 1px solid rgba(23, 215, 227, 0.4);
   padding: 8px 12px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: bold;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   pointer-events: auto;
-  box-shadow: 0 2px 8px rgba(47, 122, 54, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
 }
 
 @media (max-width: 768px) {
-  .scroll-truck {
-    font-size: 32px;
+  .scroll-truck-container {
+    left: 10px;
+    right: 10px;
   }
 
   .scroll-progress-indicator {

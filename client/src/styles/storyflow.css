@@ -1,0 +1,8 @@
+/* Story flow styles */
+.section-flow { padding: 40px 28px; }
+.flow-row { display:flex; gap:18px; }
+.flow-step { flex:1; padding:22px; border-radius:14px; background:rgba(8,14,26,0.42); border:1px solid rgba(120,160,220,0.06); }
+.step-index { font-weight:800; color:var(--accent-2); font-size:14px; }
+.step-title { margin:6px 0 8px; }
+.step-desc { color:var(--text-muted); margin:0 }
+@media (max-width: 900px) { .flow-row { flex-direction:column } }

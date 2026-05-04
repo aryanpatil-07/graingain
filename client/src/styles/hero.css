@@ -1,0 +1,100 @@
+/* Hero styles */
+.hero-section {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 36px;
+  align-items: center;
+  width: 100%;
+  max-width: 1220px;
+}
+.hero-copy {
+  color: #eaf7f9;
+}
+.hero-title {
+  font-size: clamp(32px, 5vw, 56px);
+  margin: 0 0 12px;
+  line-height: 1.02;
+  color: #ffffff;
+}
+.hero-sub {
+  margin: 0 0 22px;
+  color: #a8b9c9;
+  font-size: 18px;
+}
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.hero-input {
+  flex: 1;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(130,180,220,0.12);
+  color: #eaf7f9;
+}
+.hero-cta {
+  background: linear-gradient(135deg,#17d7e3,#6e63ff);
+  color: #04101a;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  box-shadow: 0 14px 34px rgba(23,215,227,0.14);
+  cursor: pointer;
+}
+.scroll-indicator {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #9fb6c8;
+}
+/* removed: search indicator and small cards from hero per user request */
+.scroll-indicator { display:none !important }
+@keyframes scroll {
+  0% { top: 8px; opacity: 1 }
+  60% { top: 26px; opacity: 0.2 }
+  100% { top: 8px; opacity: 1 }
+}
+.hero-visual {
+  position: relative;
+  min-height: 260px;
+}
+.cinematic-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(23,215,227,0.12), transparent 20%), radial-gradient(circle at 80% 10%, rgba(110,99,255,0.12), transparent 20%);
+  border-radius: 16px;
+  filter: blur(24px);
+}
+.hero-stats {
+  position: relative;
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  align-items:center;
+  height:100%;
+}
+.hero-stats .stat { 
+  background: rgba(255,255,255,0.03);
+  padding: 14px 18px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid rgba(130,180,220,0.06);
+}
+.hero-stats .num { font-size: 20px; font-weight: 700; color: #e9fbff }
+.hero-stats .label { font-size: 12px; color: #a8b9c9 }
+
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; }
+  .hero-visual { display:none }
+}

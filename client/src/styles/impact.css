@@ -1,0 +1,7 @@
+/* Impact Section */
+.section-impact { padding: 40px 28px; }
+.kpi-row { display:flex; gap:18px; }
+.kpi-card { flex:1; padding:22px; border-radius:16px; background: linear-gradient(145deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(120,150,240,0.06); }
+.kpi-value { font-size:22px; font-weight:800; color:#ffffff }
+.kpi-label { color:#9fb6c8; margin-top:8px }
+@media (max-width: 800px) { .kpi-row { flex-direction:column } }

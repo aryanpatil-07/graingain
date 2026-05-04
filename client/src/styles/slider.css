@@ -1,15 +1,16 @@
 .delivery-slider-container {
   margin: 24px 0;
   padding: 20px;
-  background-color: #f9fdf7;
-  border-radius: 12px;
-  border-left: 4px solid #2f7a36;
+  background-color: rgba(24, 36, 58, 0.58);
+  border-radius: 14px;
+  border-left: 3px solid #17d7e3;
+  border: 1px solid rgba(114, 159, 233, 0.26);
 }
 
 .slider-label {
   display: block;
   font-weight: 600;
-  color: #2f7a36;
+  color: #dbe8ff;
   margin-bottom: 12px;
   font-size: 14px;
 }
@@ -24,7 +25,7 @@
   flex: 1;
   height: 8px;
   border-radius: 5px;
-  background: linear-gradient(to right, #e0e0e0 0%, #2f7a36 100%);
+  background: linear-gradient(to right, #32486d 0%, #17d7e3 100%);
   outline: none;
   -webkit-appearance: none;
   appearance: none;
@@ -36,37 +37,37 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #2f7a36;
+  background: #17d7e3;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(47, 122, 54, 0.4);
+  box-shadow: 0 2px 10px rgba(23, 215, 227, 0.45);
   transition: background 0.2s, box-shadow 0.2s;
 }
 
 .slider-input::-webkit-slider-thumb:hover {
-  background: #1e5a28;
-  box-shadow: 0 2px 8px rgba(47, 122, 54, 0.6);
+  background: #4de9ff;
+  box-shadow: 0 2px 12px rgba(23, 215, 227, 0.65);
 }
 
 .slider-input::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #2f7a36;
+  background: #17d7e3;
   cursor: pointer;
   border: none;
-  box-shadow: 0 2px 6px rgba(47, 122, 54, 0.4);
+  box-shadow: 0 2px 10px rgba(23, 215, 227, 0.45);
   transition: background 0.2s, box-shadow 0.2s;
 }
 
 .slider-input::-moz-range-thumb:hover {
-  background: #1e5a28;
-  box-shadow: 0 2px 8px rgba(47, 122, 54, 0.6);
+  background: #4de9ff;
+  box-shadow: 0 2px 12px rgba(23, 215, 227, 0.65);
 }
 
 .slider-value {
   min-width: 80px;
   font-weight: 700;
-  color: #2f7a36;
+  color: #dff5ff;
   font-size: 16px;
   text-align: right;
 }
@@ -75,7 +76,7 @@
   display: flex;
   justify-content: space-between;
   font-size: 12px;
-  color: #999;
+  color: #9eb1d3;
   margin-top: 8px;
   padding: 0 4px;
 }

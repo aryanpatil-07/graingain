@@ -5,7 +5,7 @@ export function DeliverySlider({ value, onChange, min = 0, max = 24, step = 1 })
   return (
     <div className="delivery-slider-container">
       <label htmlFor="delivery-slider" className="slider-label">
-        ⏱ Delivery Timing
+        Delivery Timing
       </label>
       <div className="slider-wrapper">
         <input

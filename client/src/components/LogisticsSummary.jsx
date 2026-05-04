@@ -8,11 +8,10 @@ export function LogisticsSummary({
   foodType,
   expiryHours,
   urgency,
-  onDonate,
   onRequestPickup
 }) {
   if (!centre) {
-    return <div className="logistics-summary empty">Select a donation centre to see logistics...</div>;
+    return <div className="logistics-summary empty">Select an NGO to see logistics...</div>;
   }
 
   const urgencyColor = {
@@ -24,7 +23,7 @@ export function LogisticsSummary({
   return (
     <div className="logistics-summary">
       <div className="summary-header">
-        <h3>📦 Donation Summary</h3>
+        <h3>NGO Surplus Request Summary</h3>
         <div className="urgency-badge" style={{ backgroundColor: urgencyColor }}>
           {urgency}
         </div>
@@ -32,27 +31,27 @@ export function LogisticsSummary({
 
       <div className="summary-grid">
         <div className="summary-item">
-          <span className="label">🍛 Food Type</span>
+          <span className="label">Food Type</span>
           <span className="value">{foodType}</span>
         </div>
         <div className="summary-item">
-          <span className="label">⏱ Expires In</span>
+          <span className="label">Expires In</span>
           <span className="value">{expiryHours.toFixed(1)} hours</span>
         </div>
         <div className="summary-item">
-          <span className="label">📍 Nearest Centre</span>
+          <span className="label">Selected NGO</span>
           <span className="value">{centre.name}</span>
         </div>
         <div className="summary-item">
-          <span className="label">📏 Distance</span>
+          <span className="label">Distance</span>
           <span className="value">{distanceKm.toFixed(1)} km</span>
         </div>
         <div className="summary-item">
-          <span className="label">🚚 Pickup ETA</span>
+          <span className="label">Pickup ETA</span>
           <span className="value">{etaMinutes} minutes</span>
         </div>
         <div className="summary-item">
-          <span className="label">🍽 Capacity</span>
+          <span className="label">Capacity</span>
           <span className="value">{centre.capacity} meals</span>
         </div>
       </div>
@@ -61,27 +60,24 @@ export function LogisticsSummary({
         <p>
           <strong>{centre.name}</strong>
           <br />
-          📍 {centre.address}
+          {centre.address}
           <br />
-          📞 {centre.phone}
+          {centre.phone}
         </p>
       </div>
 
       <div className="summary-actions">
-        <button className="btn btn-primary" onClick={onDonate}>
-          ✨ Confirm Donation
-        </button>
-        <button className="btn btn-secondary" onClick={onRequestPickup}>
-          🚚 Request Pickup
+        <button className="btn btn-primary" onClick={onRequestPickup}>
+          Request Surplus Food
         </button>
       </div>
 
       <div className="summary-impact">
         <p>
-          <strong>Your donation will feed {centre.capacity} people today.</strong>
+          <strong>This NGO can request surplus food from {centre.capacity} nearby meal-capacity units today.</strong>
           <br />
-          <span style={{ fontSize: '12px', color: '#555' }}>
-            A warm meal reaches someone who needed it.
+          <span style={{ fontSize: '12px', color: '#a6b8d8' }}>
+            The goal is faster surplus routing from restaurants to NGO partners.
           </span>
         </p>
       </div>
