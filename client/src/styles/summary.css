@@ -1,32 +1,32 @@
 .logistics-summary {
-  margin: 24px 0;
-  padding: 24px;
-  background: linear-gradient(135deg, #f9fdf7 0%, #eef7ea 100%);
-  border-radius: 12px;
-  border: 2px solid #2f7a36;
-  box-shadow: 0 4px 12px rgba(44, 67, 26, 0.12);
+  margin: 30px 0 24px;
+  padding: 28px;
+  background: linear-gradient(145deg, rgba(14, 30, 55, 0.72), rgba(10, 19, 35, 0.72));
+  border-radius: 16px;
+  border: 1px solid rgba(114, 156, 230, 0.36);
+  box-shadow: 0 18px 34px rgba(0, 5, 15, 0.45);
 }
 
 .logistics-summary.empty {
   text-align: center;
-  color: #999;
+  color: #a8bbdb;
   padding: 40px 24px;
-  border-color: #ddd;
-  background: #f5f5f5;
+  border-color: rgba(117, 146, 193, 0.28);
+  background: rgba(20, 31, 50, 0.55);
 }
 
 .summary-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(122, 156, 210, 0.25);
 }
 
 .summary-header h3 {
   margin: 0;
-  color: #2f7a36;
+  color: #e8f2ff;
   font-size: 18px;
 }
 
@@ -43,23 +43,23 @@
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 18px;
+  margin-bottom: 24px;
 }
 
 .summary-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px;
-  background-color: white;
+  gap: 8px;
+  padding: 14px;
+  background-color: rgba(154, 202, 255, 0.09);
   border-radius: 8px;
-  border-left: 3px solid #2f7a36;
+  border-left: 3px solid #19cee8;
 }
 
 .summary-item .label {
   font-size: 12px;
-  color: #666;
+  color: #a6b8d8;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -68,33 +68,36 @@
 .summary-item .value {
   font-size: 15px;
   font-weight: 700;
-  color: #2f7a36;
+  color: #f4f8ff;
 }
 
 .summary-contact {
-  background-color: white;
-  padding: 16px;
+  background-color: rgba(129, 155, 197, 0.1);
+  padding: 18px;
   border-radius: 8px;
-  margin-bottom: 20px;
-  border-left: 3px solid #ff9800;
+  margin-bottom: 24px;
+  border-left: 3px solid #6e63ff;
 }
 
 .summary-contact p {
   margin: 0;
-  color: #555;
+  color: #dbe8ff;
   font-size: 14px;
   line-height: 1.6;
 }
 
 .summary-contact strong {
-  color: #2f7a36;
+  color: #ffffff;
 }
 
 .summary-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.summary-actions .btn {
+  width: min(100%, 320px);
 }
 
 .btn {
@@ -109,14 +112,13 @@
 }
 
 .btn-primary {
-  background-color: #2f7a36;
-  color: white;
-  box-shadow: 0 2px 8px rgba(47, 122, 54, 0.3);
+  background: linear-gradient(135deg, #17d7e3, #13bcd5);
+  color: #021320;
+  box-shadow: 0 8px 18px rgba(23, 215, 227, 0.25);
 }
 
 .btn-primary:hover {
-  background-color: #1e5a28;
-  box-shadow: 0 4px 12px rgba(47, 122, 54, 0.4);
+  box-shadow: 0 12px 20px rgba(23, 215, 227, 0.32);
   transform: translateY(-2px);
 }
 
@@ -126,29 +128,29 @@
 }
 
 .btn-secondary {
-  background-color: #e0e0e0;
-  color: #333;
+  background: linear-gradient(135deg, rgba(110, 99, 255, 0.9), rgba(89, 76, 230, 0.92));
+  color: #eff0ff;
 }
 
 .btn-secondary:hover {
-  background-color: #d0d0d0;
+  filter: brightness(1.08);
 }
 
 .btn-secondary:active {
-  background-color: #c0c0c0;
+  filter: brightness(0.96);
 }
 
 .summary-impact {
-  padding: 16px;
-  background-color: #e8f5e9;
+  padding: 18px;
+  background-color: rgba(46, 229, 157, 0.12);
   border-radius: 8px;
-  border-left: 3px solid #4caf50;
+  border-left: 3px solid #2ee59d;
   text-align: center;
 }
 
 .summary-impact p {
   margin: 0;
-  color: #2e7d32;
+  color: #d9ffe8;
   font-size: 14px;
   line-height: 1.6;
 }
@@ -161,15 +163,15 @@
 
 @media (max-width: 768px) {
   .logistics-summary {
-    padding: 16px;
+    padding: 18px;
   }
 
   .summary-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .summary-actions {
-    grid-template-columns: 1fr;
+  .summary-actions .btn {
+    width: 100%;
   }
 
   .summary-header {

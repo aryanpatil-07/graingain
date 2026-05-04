@@ -11,27 +11,31 @@ export function ScrollTruck() {
       const scrolled = window.scrollY;
       const newProgress = scrollHeight > 0 ? Math.min(1, scrolled / scrollHeight) : 0;
       setProgress(newProgress);
-    }, 50); // Throttle to 50ms intervals
+    }, 30);
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
-  const translateX = progress * (window.innerWidth - 60); // 60px for truck width
+  // Translate from left: 0% (off-screen left) to 100% (off-screen right)
+  const pct = Math.max(0, Math.min(1, progress));
 
   return (
     <div className="scroll-truck-container" aria-hidden="true">
       <div
         className="scroll-truck"
         style={{
-          transform: `translateX(${translateX}px)`,
-          transition: 'transform 0.1s linear'
+          left: `${pct * 100}%`,
+          transform: `translateX(-50%)`
         }}
       >
-        🚚
+        <div className="truck-icon" />
       </div>
       <div className="scroll-progress-indicator">
-        {Math.round(progress * 100)}%
+        {Math.round(pct * 100)}%
       </div>
     </div>
   );
