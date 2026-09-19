@@ -6,14 +6,17 @@ import { ScrollTruck } from "./components/ScrollTruck";
 import HeroSection from "./components/HeroSection";
 import ImpactSection from "./components/ImpactSection";
 import StoryFlow from "./components/StoryFlow";
+import { RoleSelector } from "./components/RoleSelector";
+import { LiveDeliveryTracker } from "./components/LiveDeliveryTracker";
+import { socket, joinRole, emitCreateRequest } from "./services/socket";
 import { CENTRES } from "./data/centres";
 import { RESTAURANTS } from "./data/restaurants";
 import "./App.css";
 
-const DEMO_DATA_LABEL = "AI-assumed restaurant intelligence";
+const DEMO_DATA_LABEL = "Neon DB & Real-Time Intelligence";
 
 function hashId(value) {
-  return value.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return String(value).split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
 }
 
 function haversine(lat1, lng1, lat2, lng2) {
@@ -71,12 +74,111 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // WebSockets & Database state
+  const [socketConnected, setSocketConnected] = useState(socket.connected);
+  const [currentRole, setCurrentRole] = useState("donor");
+  const [requests, setRequests] = useState([]);
+  const [latestAlert, setLatestAlert] = useState(null);
+  const [ngosList, setNgosList] = useState(CENTRES);
+  const [restaurantsList, setRestaurantsList] = useState(RESTAURANTS);
+
+  const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
+  // Fetch initial data from PostgreSQL DB & attach Socket listeners
+  useEffect(() => {
+    // Fetch NGOs from PostgreSQL DB
+    fetch(`${API_BASE}/api/ngos`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setNgosList(data.map(n => ({ ...n, lat: Number(n.lat), lng: Number(n.lng) })));
+        }
+      })
+      .catch((err) => console.log("Using static fallback NGOs:", err.message));
+
+    // Fetch Restaurants from PostgreSQL DB
+    fetch(`${API_BASE}/api/restaurants`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setRestaurantsList(data.map(r => ({ ...r, lat: Number(r.lat), lng: Number(r.lng) })));
+        }
+      })
+      .catch((err) => console.log("Using static fallback Restaurants:", err.message));
+
+    // Fetch initial Surplus Requests from PostgreSQL DB
+    fetch(`${API_BASE}/api/requests`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setRequests(data);
+        }
+      })
+      .catch((err) => console.log("Requests fetch notice:", err.message));
+
+    // WebSockets Event Subscriptions
+    const handleConnect = () => {
+      setSocketConnected(true);
+      joinRole(currentRole);
+    };
+
+    const handleDisconnect = () => {
+      setSocketConnected(false);
+    };
+
+    const handleRequestCreated = (newReq) => {
+      setRequests((prev) => [newReq, ...prev.filter((r) => r.id !== newReq.id)]);
+      setLatestAlert({
+        type: "info",
+        title: "📢 New Food Surplus Request Created",
+        message: `Request #${newReq.id} for "${newReq.food_type}" created for ${newReq.ngo_name || "NGO"}.`
+      });
+    };
+
+    const handleStatusUpdated = ({ request }) => {
+      if (!request) return;
+      setRequests((prev) => prev.map((r) => (r.id === request.id ? { ...r, ...request } : r)));
+      setLatestAlert({
+        type: "info",
+        title: "📢 Delivery Status Updated",
+        message: `Request #${request.id} status changed to ${request.status}.`
+      });
+    };
+
+    const handleDeliveryDelayed = ({ request, delay_minutes, reason }) => {
+      if (!request) return;
+      setRequests((prev) => prev.map((r) => (r.id === request.id ? { ...r, ...request } : r)));
+      setLatestAlert({
+        type: "delay",
+        title: "⚠️ Delivery Delay Reported",
+        message: `Request #${request.id} delayed by ${delay_minutes} mins (${reason}).`
+      });
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("request_created", handleRequestCreated);
+    socket.on("status_updated", handleStatusUpdated);
+    socket.on("delivery_delayed", handleDeliveryDelayed);
+
+    if (socket.connected) {
+      setSocketConnected(true);
+      joinRole(currentRole);
+    }
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("request_created", handleRequestCreated);
+      socket.off("status_updated", handleStatusUpdated);
+      socket.off("delivery_delayed", handleDeliveryDelayed);
+    };
+  }, [API_BASE, currentRole]);
+
+  // Scroll reveal animation observer
   useEffect(() => {
     const elements = document.querySelectorAll(".reveal-on-scroll:not(.is-visible)");
-
-    if (elements.length === 0) {
-      return undefined;
-    }
+    if (elements.length === 0) return undefined;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -87,11 +189,7 @@ function App() {
           }
         });
       },
-      {
-        root: null,
-        threshold: 0.22,
-        rootMargin: "0px 0px -8% 0px"
-      }
+      { root: null, threshold: 0.15, rootMargin: "0px 0px -5% 0px" }
     );
 
     const rafId = window.requestAnimationFrame(() => {
@@ -102,14 +200,13 @@ function App() {
       window.cancelAnimationFrame(rafId);
       observer.disconnect();
     };
-  }, [data, loading]);
+  }, [data, loading, requests]);
 
   const activeCentre = selectedCentre || nearestCentre;
   const activeDistanceKm = selectedCentre ? selectedDistanceKm : nearestDistanceKm;
 
   // Compute ETA in minutes from distance and timing
   const computeETA = (km, hours) => {
-    // Assume average speed of 30 km/h in city traffic
     const driveTimeMinutes = Math.round((km / 30) * 60);
     const prepTime = hours * 60;
     return Math.max(5, driveTimeMinutes + prepTime);
@@ -117,7 +214,6 @@ function App() {
 
   const etaMinutes = computeETA(activeDistanceKm, sliderHours);
 
-  // Derive urgency from remaining expiry hours (after subtracting ETA hours)
   const deriveUrgency = (expiryHours, etaHours) => {
     const remainingHours = expiryHours - (etaHours / 60);
     if (remainingHours <= 1) return "HIGH";
@@ -128,16 +224,16 @@ function App() {
   const urgency = data ? deriveUrgency(data.expiry_hours, etaMinutes / 60) : "MEDIUM";
 
   const monitoredCentres = useMemo(
-    () => CENTRES.map((centre) => estimateEnvironmentalMetrics(centre, sliderHours)),
-    [sliderHours]
+    () => ngosList.map((centre) => estimateEnvironmentalMetrics(centre, sliderHours)),
+    [ngosList, sliderHours]
   );
 
   const restaurantNetworkMetrics = useMemo(() => {
-    return RESTAURANTS.map((restaurant) => {
+    return restaurantsList.map((restaurant) => {
       const nearestNgo = monitoredCentres.reduce((closest, ngo) => {
         const currentDistance = haversine(restaurant.lat, restaurant.lng, ngo.lat, ngo.lng);
         return currentDistance < closest.distance ? { ngo, distance: currentDistance } : closest;
-      }, { ngo: monitoredCentres[0], distance: Number.POSITIVE_INFINITY });
+      }, { ngo: monitoredCentres[0] || CENTRES[0], distance: Number.POSITIVE_INFINITY });
 
       const risk = estimateRestaurantRisk(restaurant, nearestNgo.ngo.id, sliderHours);
 
@@ -148,7 +244,7 @@ function App() {
         distanceFromNgoKm: nearestNgo.distance
       };
     });
-  }, [monitoredCentres, sliderHours]);
+  }, [restaurantsList, monitoredCentres, sliderHours]);
 
   const environmentTotals = useMemo(() => {
     return restaurantNetworkMetrics.reduce(
@@ -158,25 +254,12 @@ function App() {
         totalMethaneRisk: totals.totalMethaneRisk + restaurant.methaneRiskKgCO2e,
         totalLandfillLoad: totals.totalLandfillLoad + restaurant.wasteKg * 0.84
       }),
-      {
-        totalWaste: 0,
-        totalSurplusMeals: 0,
-        totalMethaneRisk: 0,
-        totalLandfillLoad: 0
-      }
+      { totalWaste: 0, totalSurplusMeals: 0, totalMethaneRisk: 0, totalLandfillLoad: 0 }
     );
   }, [restaurantNetworkMetrics]);
 
-  const highImpactRestaurants = useMemo(() => {
-    return [...restaurantNetworkMetrics]
-      .sort((a, b) => b.wasteKg - a.wasteKg)
-      .slice(0, 3);
-  }, [restaurantNetworkMetrics]);
-
   const topRestaurantsForSelectedNgo = useMemo(() => {
-    if (!activeCentre) {
-      return [];
-    }
+    if (!activeCentre) return [];
 
     return restaurantNetworkMetrics
       .filter((restaurant) => restaurant.ngoId === activeCentre.id)
@@ -188,29 +271,10 @@ function App() {
       .slice(0, 3);
   }, [activeCentre, restaurantNetworkMetrics]);
 
-  const publicHealthMetrics = useMemo(() => {
-    const nutritionAccessMeals = Math.round(environmentTotals.totalSurplusMeals * 0.72);
-    const emergencyMealCapacity = Math.round(environmentTotals.totalSurplusMeals * 0.35);
-    const affordableRoutingSavingsPct = 28;
-    const qualityComplianceRate = 98;
-    const crisisResponseTimeMinutes = Math.max(18, Math.round(etaMinutes * 0.75));
-
-    return {
-      nutritionAccessMeals,
-      emergencyMealCapacity,
-      affordableRoutingSavingsPct,
-      qualityComplianceRate,
-      crisisResponseTimeMinutes
-    };
-  }, [environmentTotals.totalSurplusMeals, etaMinutes]);
-
-
-  // Handle location change from map
   const handleLocationChange = useCallback((location) => {
     setUserLocation(location);
   }, []);
 
-  // Handle nearest centre selection from map
   const handleNearestChange = useCallback((centre, distance) => {
     setNearestCentre(centre);
     setNearestDistanceKm(distance);
@@ -226,7 +290,12 @@ function App() {
     setSelectedDistanceKm(distance);
   }, []);
 
-  // Analyze food via backend
+  const handleRoleSelect = (role) => {
+    setCurrentRole(role);
+    joinRole(role);
+  };
+
+  // AI Food Analysis
   const analyze = async () => {
     if (!input.trim()) {
       setError("Please enter food details first.");
@@ -237,47 +306,20 @@ function App() {
     setError("");
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL;
-      console.log("🔍 DEBUG: API URL =", apiUrl);
-      console.log("🔍 DEBUG: Full endpoint =", `${apiUrl}/analyze`);
-      console.log("🔍 DEBUG: Request body =", { description: input });
-
-      const res = await fetch(`${apiUrl}/analyze`, {
+      const res = await fetch(`${API_BASE}/analyze`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description: input })
       });
 
-      console.log("🔍 DEBUG: Response status =", res.status);
       const responseText = await res.text();
-      console.log("🔍 DEBUG: Response text =", responseText);
-
       let result = null;
       if (responseText.trim().length > 0) {
-        try {
-          result = JSON.parse(responseText);
-        } catch (parseErr) {
-          console.error("❌ JSON Parse Error:", parseErr);
-          throw new Error(`Server returned non-JSON response: ${responseText}`);
-        }
+        result = JSON.parse(responseText);
       }
 
-      console.log("🔍 DEBUG: Response body =", result);
-
-      if (!res.ok) {
-        const responseMessage =
-          result?.message ||
-          result?.error ||
-          responseText.trim() ||
-          `Request failed with status ${res.status}`;
-
-        throw new Error(`Analyze request failed (${res.status}): ${responseMessage}`);
-      }
-
-      if (!result) {
-        throw new Error("Analyze request returned an empty response.");
+      if (!res.ok || !result) {
+        throw new Error(result?.message || `Analyze request failed (${res.status})`);
       }
 
       setData(result);
@@ -290,23 +332,47 @@ function App() {
     }
   };
 
+  // Real-time WebSockets Surplus Request creation
   const handleRequestPickup = () => {
     if (!activeCentre) {
       setError("Please select an NGO from the map.");
       return;
     }
-    console.log("Surplus request sent:", { ngo: activeCentre });
-    alert(`Surplus request sent to ${activeCentre.name}. The team will contact you shortly.`);
+
+    const requestPayload = {
+      description: input || "Fresh food surplus donation",
+      food_type: data ? data.food_type : "Prepared Meals",
+      expiry_hours: data ? data.expiry_hours : 4.0,
+      urgency: data ? data.urgency : "MEDIUM",
+      restaurant_id: topRestaurantsForSelectedNgo[0]?.id || "rst_shivaji_1",
+      ngo_id: activeCentre.id,
+      ngo_name: activeCentre.name,
+      eta_minutes: etaMinutes
+    };
+
+    // Emit via WebSockets
+    emitCreateRequest(requestPayload);
+
+    alert(`⚡ Real-Time WebSockets Request sent to ${activeCentre.name}! Check the Live Dispatcher below.`);
   };
 
   return (
     <div className="app-container">
       <header className="app-header">
         <div className="header-content">
-          <h1>GrainGain</h1>
-          <p>Data-led food rescue intelligence for climate and city health outcomes.</p>
+          <div>
+            <h1>GrainGain</h1>
+            <p>Data-led food rescue intelligence & real-time WebSockets surplus dispatching.</p>
+          </div>
         </div>
       </header>
+
+      {/* Persona & WebSockets Status Selector */}
+      <RoleSelector
+        currentRole={currentRole}
+        onSelectRole={handleRoleSelect}
+        socketConnected={socketConnected}
+      />
 
       <main className="app-main">
         <HeroSection
@@ -320,10 +386,10 @@ function App() {
 
         <StoryFlow />
 
-        {/* Analysis / Input upgraded into glass panel */}
+        {/* Step 1: Input section */}
         <section className="section section-input full-screen-section reveal-on-scroll glass-panel">
           <h2>Step 1 — Describe the Surplus Source</h2>
-          <p className="section-subtext">Type a short description and let our AI estimate safety and urgency.</p>
+          <p className="section-subtext">Type a short description and let AI estimate safety & urgency.</p>
           <div className="input-group premium-input">
             <input
               type="text"
@@ -341,7 +407,7 @@ function App() {
           {error && <div className="error-message">{error}</div>}
         </section>
 
-        {/* Food Analysis Results */}
+        {/* Step 2 & 3: Results & Map */}
         {data && (
           <section className="section section-analysis full-screen-section reveal-on-scroll">
             <h2>Step 2: NGO Map and Nearby Restaurants</h2>
@@ -361,8 +427,7 @@ function App() {
             </div>
 
             <p className="section-subtext">
-              Click an NGO on the map to reveal the three closest restaurants. Hover each restaurant to review predicted
-              surplus, possible waste, and methane risk.
+              Select an NGO on the map to view nearby food providers and dispatch surplus requests.
             </p>
 
             <MapNearest
@@ -396,7 +461,7 @@ function App() {
               ) : (
                 <article className="surplus-card mirror-card">
                   <h3>Awaiting NGO Selection</h3>
-                  <p className="surplus-location">Allow location access or click any NGO marker on the map.</p>
+                  <p className="surplus-location">Click any NGO marker on the map to view nearby partners.</p>
                 </article>
               )}
             </div>
@@ -418,19 +483,27 @@ function App() {
           </section>
         )}
 
-        {/* Empty State */}
+        {/* Real-time WebSockets Live Delivery Tracker Section */}
+        <section className="section reveal-on-scroll">
+          <LiveDeliveryTracker
+            requests={requests}
+            currentRole={currentRole}
+            latestAlert={latestAlert}
+            clearAlert={() => setLatestAlert(null)}
+          />
+        </section>
+
+        {/* How it works state */}
         {!data && !loading && (
           <section className="section section-empty full-screen-section reveal-on-scroll">
             <div className="empty-state">
-              <h2>How GrainGain Works</h2>
+              <h2>How GrainGain Real-Time Rescue Works</h2>
               <ol className="steps">
-                <li><strong>Describe:</strong> Tell us about the food source or surplus profile</li>
-                <li><strong>Analyze:</strong> AI determines food type and remaining shelf life</li>
-                <li><strong>Select:</strong> Click an NGO to inspect nearby restaurant surplus and waste risk</li>
-                <li><strong>Schedule:</strong> Choose a pickup time that works for you</li>
-                <li><strong>Request:</strong> Ask the restaurant to release its surplus food</li>
+                <li><strong>Describe:</strong> Enter surplus food details for AI shelf-life analysis</li>
+                <li><strong>Select NGO:</strong> Pick an NGO/shelter to match with nearby restaurants</li>
+                <li><strong>Dispatch WebSockets Request:</strong> Instantly notify NGOs & driver networks</li>
+                <li><strong>Live Track & Delays:</strong> Receive 2-way real-time updates and delay alerts</li>
               </ol>
-              <p className="empty-cta">Start by describing your food above.</p>
             </div>
           </section>
         )}
@@ -444,12 +517,10 @@ function App() {
         </div>
       </section>
 
-      {/* Scroll Truck Animation */}
       <ScrollTruck />
 
-      {/* Footer */}
       <footer className="app-footer">
-        <p>Built to reduce food waste and strengthen nutrition access across cities.</p>
+        <p>Built with Neon PostgreSQL & Socket.io WebSockets to reduce food waste and strengthen nutrition access across cities.</p>
         <p><small>© 2025 GrainGain. All rights reserved.</small></p>
       </footer>
     </div>
