@@ -51,14 +51,6 @@ export function animateHeroEntrance() {
       duration: 750
     }, 450);
 
-    // 6. Right column elements stagger in
-    tl.add('.hero-col-right > *', {
-      translateX: [30, 0],
-      opacity: [0, 1],
-      delay: stagger(100),
-      duration: 750
-    }, 450);
-
     return tl;
   } catch (err) {
     console.warn('Hero animation error:', err);
@@ -88,18 +80,6 @@ export function animateBadgeRotation(targetSelector) {
  */
 export function animateFloatingElements() {
   try {
-    const flyingEl = document.querySelector('.hero-flying-courier');
-    if (flyingEl) {
-      animate(flyingEl, {
-        translateY: [-8, 8],
-        rotate: [-1.5, 1.5],
-        duration: 2600,
-        ease: 'inOutSine',
-        alternate: true,
-        loop: true
-      });
-    }
-
     const pizzaBadge = document.querySelector('.hero-badge-wrap');
     if (pizzaBadge) {
       animate(pizzaBadge, {

@@ -6,7 +6,6 @@ import { ScrollTruck } from "./components/ScrollTruck";
 import HeroSection from "./components/HeroSection";
 import ImpactSection from "./components/ImpactSection";
 import StoryFlow from "./components/StoryFlow";
-import { RoleSelector } from "./components/RoleSelector";
 import { LiveDeliveryTracker } from "./components/LiveDeliveryTracker";
 import { socket, joinRole, emitCreateRequest } from "./services/socket";
 import { initScrollReveal } from "./services/animations";
@@ -76,8 +75,7 @@ function App() {
   const [error, setError] = useState("");
 
   // WebSockets & Database state
-  const [socketConnected, setSocketConnected] = useState(socket.connected);
-  const [currentRole, setCurrentRole] = useState("donor");
+  const [currentRole] = useState("donor");
   const [requests, setRequests] = useState([]);
   const [latestAlert, setLatestAlert] = useState(null);
   const [ngosList, setNgosList] = useState(CENTRES);
@@ -119,12 +117,11 @@ function App() {
 
     // WebSockets Event Subscriptions
     const handleConnect = () => {
-      setSocketConnected(true);
       joinRole(currentRole);
     };
 
     const handleDisconnect = () => {
-      setSocketConnected(false);
+      // Disconnected
     };
 
     const handleRequestCreated = (newReq) => {
@@ -163,7 +160,6 @@ function App() {
     socket.on("delivery_delayed", handleDeliveryDelayed);
 
     if (socket.connected) {
-      setSocketConnected(true);
       joinRole(currentRole);
     }
 
@@ -272,10 +268,6 @@ function App() {
     setSelectedDistanceKm(distance);
   }, []);
 
-  const handleRoleSelect = (role) => {
-    setCurrentRole(role);
-    joinRole(role);
-  };
 
   // AI Food Analysis
   const analyze = async () => {
@@ -370,13 +362,6 @@ function App() {
           </div>
         </div>
       </header>
-
-      {/* Persona & WebSockets Status Selector */}
-      <RoleSelector
-        currentRole={currentRole}
-        onSelectRole={handleRoleSelect}
-        socketConnected={socketConnected}
-      />
 
       <main className="app-main">
         <HeroSection

@@ -5,7 +5,6 @@ import {
   animateFloatingElements
 } from '../services/animations';
 import heroCourierImg from '../assets/hero_courier.jpg';
-import flyingCourierImg from '../assets/flying_courier.jpg';
 import pizzaPlateImg from '../assets/pizza_plate.jpg';
 import userAvatarsImg from '../assets/user_avatars.jpg';
 import '../styles/hero.css';
@@ -138,47 +137,6 @@ export default function HeroSection({ onSearchClick, onFindRestaurantClick }) {
               alt="Fast delivery courier riding scooter with fresh meals"
               className="hero-scooter-courier"
             />
-          </div>
-        </div>
-
-        {/* Right Column: Flying Courier, Ribbon Banner, and Editorial Stats */}
-        <div className="hero-col hero-col-right">
-          {/* Flying superhero courier illustration */}
-          <div className="hero-flying-wrap">
-            <img
-              src={flyingCourierImg}
-              alt="Fast courier in action"
-              className="hero-flying-courier"
-            />
-          </div>
-
-          {/* Curved Ribbon Banner */}
-          <div className="hero-curved-ribbon">
-            <svg viewBox="0 0 320 60" className="ribbon-svg" preserveAspectRatio="none">
-              <path
-                d="M 10,40 Q 80,10 160,25 Q 240,40 310,15 L 305,50 Q 240,65 160,50 Q 80,35 15,55 Z"
-                fill="#18181B"
-              />
-            </svg>
-            <span className="ribbon-text">Food Ordering & Rescue in your city</span>
-          </div>
-
-          {/* Editorial Big Stat Numbers */}
-          <div className="hero-stat-stack">
-            <div className="hero-stat-item">
-              <h2 className="stat-number">2500+</h2>
-              <p className="stat-label">Successful Delivery</p>
-            </div>
-
-            <div className="hero-stat-item">
-              <h2 className="stat-number">1800+</h2>
-              <p className="stat-label">Happy Customer</p>
-            </div>
-
-            <div className="hero-stat-item">
-              <h2 className="stat-number">1200+</h2>
-              <p className="stat-label">Client's Review</p>
-            </div>
           </div>
         </div>
       </div>
