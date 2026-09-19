@@ -11,75 +11,85 @@ export function LogisticsSummary({
   onRequestPickup
 }) {
   if (!centre) {
-    return <div className="logistics-summary empty">Select an NGO to see logistics...</div>;
+    return (
+      <div className="logistics-editorial-box empty-state-box">
+        <span className="empty-box-icon">📍</span>
+        <h4>No NGO Selected Yet</h4>
+        <p>Click any partner marker on the interactive map above to calculate route and dispatch.</p>
+      </div>
+    );
   }
 
-  const urgencyColor = {
-    HIGH: '#d32f2f',
-    MEDIUM: '#f57c00',
-    LOW: '#388e3c'
-  }[urgency] || '#757575';
+  const urgencyClass = (urgency || 'MEDIUM').toLowerCase();
 
   return (
-    <div className="logistics-summary">
-      <div className="summary-header">
-        <h3>NGO Surplus Request Summary</h3>
-        <div className="urgency-badge" style={{ backgroundColor: urgencyColor }}>
-          {urgency}
+    <div className="logistics-editorial-box">
+      <div className="summary-editorial-header">
+        <div>
+          <span className="summary-kicker">DISPATCH LOGISTICS READY</span>
+          <h3 className="summary-title">Surplus Routing Summary</h3>
+        </div>
+        <span className={`urgency-pill urgency-${urgencyClass}`}>
+          {urgency} URGENCY
+        </span>
+      </div>
+
+      <div className="summary-metrics-grid">
+        <div className="metric-tile">
+          <span className="metric-tile-label">Food Classification</span>
+          <span className="metric-tile-val">{foodType}</span>
+        </div>
+
+        <div className="metric-tile">
+          <span className="metric-tile-label">Safe Shelf Life</span>
+          <span className="metric-tile-val">{expiryHours ? expiryHours.toFixed(1) : '4.0'} hrs</span>
+        </div>
+
+        <div className="metric-tile metric-tile-ngo">
+          <span className="metric-tile-label">Designated Partner</span>
+          <span className="metric-tile-val highlight">{centre.name}</span>
+        </div>
+
+        <div className="metric-tile">
+          <span className="metric-tile-label">Route Distance</span>
+          <span className="metric-tile-val">{distanceKm ? distanceKm.toFixed(1) : '0.0'} km</span>
+        </div>
+
+        <div className="metric-tile">
+          <span className="metric-tile-label">Estimated Transit Time</span>
+          <span className="metric-tile-val eta-val">{etaMinutes} mins</span>
+        </div>
+
+        <div className="metric-tile">
+          <span className="metric-tile-label">Shelter Intake Capacity</span>
+          <span className="metric-tile-val">{centre.capacity || 100} meals</span>
         </div>
       </div>
 
-      <div className="summary-grid">
-        <div className="summary-item">
-          <span className="label">Food Type</span>
-          <span className="value">{foodType}</span>
-        </div>
-        <div className="summary-item">
-          <span className="label">Expires In</span>
-          <span className="value">{expiryHours.toFixed(1)} hours</span>
-        </div>
-        <div className="summary-item">
-          <span className="label">Selected NGO</span>
-          <span className="value">{centre.name}</span>
-        </div>
-        <div className="summary-item">
-          <span className="label">Distance</span>
-          <span className="value">{distanceKm.toFixed(1)} km</span>
-        </div>
-        <div className="summary-item">
-          <span className="label">Pickup ETA</span>
-          <span className="value">{etaMinutes} minutes</span>
-        </div>
-        <div className="summary-item">
-          <span className="label">Capacity</span>
-          <span className="value">{centre.capacity} meals</span>
-        </div>
-      </div>
-
-      <div className="summary-contact">
-        <p>
+      <div className="summary-contact-card">
+        <div className="contact-icon">🏢</div>
+        <div className="contact-info">
           <strong>{centre.name}</strong>
-          <br />
-          {centre.address}
-          <br />
-          {centre.phone}
-        </p>
+          <span>{centre.address}</span>
+          <span className="contact-phone">📞 {centre.phone}</span>
+        </div>
       </div>
 
-      <div className="summary-actions">
-        <button className="btn btn-primary" onClick={onRequestPickup}>
-          Request Surplus Food
+      <div className="summary-actions-bar">
+        <button
+          type="button"
+          className="btn-editorial-dispatch"
+          onClick={onRequestPickup}
+        >
+          ⚡ Dispatch Real-Time Pickup Request
         </button>
       </div>
 
-      <div className="summary-impact">
-        <p>
-          <strong>This NGO can request surplus food from {centre.capacity} nearby meal-capacity units today.</strong>
-          <br />
-          <span style={{ fontSize: '12px', color: '#a6b8d8' }}>
-            The goal is faster surplus routing from restaurants to NGO partners.
-          </span>
-        </p>
+      <div className="summary-guarantee-note">
+        <span>🛡️</span>
+        <span>
+          <strong>Direct NGO Hand-off:</strong> Matches your surplus food to {centre.name} with live GPS and delay alerts via WebSockets.
+        </span>
       </div>
     </div>
   );

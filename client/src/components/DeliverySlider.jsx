@@ -2,11 +2,20 @@ import React from 'react';
 import '../styles/slider.css';
 
 export function DeliverySlider({ value, onChange, min = 0, max = 24, step = 1 }) {
+  const percent = ((value - min) / (max - min)) * 100;
+
   return (
-    <div className="delivery-slider-container">
-      <label htmlFor="delivery-slider" className="slider-label">
-        Delivery Timing
-      </label>
+    <div className="editorial-slider-box">
+      <div className="slider-header-row">
+        <div>
+          <h4 className="slider-heading">Pickup Schedule Window</h4>
+          <p className="slider-hint">Slide to adjust buffer time before driver dispatch</p>
+        </div>
+        <div className="slider-value-pill">
+          {value} {value === 1 ? 'hour' : 'hours'}
+        </div>
+      </div>
+
       <div className="slider-wrapper">
         <input
           id="delivery-slider"
@@ -16,17 +25,18 @@ export function DeliverySlider({ value, onChange, min = 0, max = 24, step = 1 })
           step={step}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
-          className="slider-input"
+          className="slider-input-clean"
+          style={{
+            background: `linear-gradient(to right, #166534 0%, #166534 ${percent}%, #e2ece5 ${percent}%, #e2ece5 100%)`
+          }}
           aria-label="Select delivery timing in hours"
         />
-        <div className="slider-value">
-          {value} {value === 1 ? 'hour' : 'hours'}
-        </div>
       </div>
-      <div className="slider-ticks">
-        <span>Now</span>
-        <span>12h</span>
-        <span>24h</span>
+
+      <div className="slider-ticks-clean">
+        <span>Immediate (Now)</span>
+        <span>+12 Hours</span>
+        <span>+24 Hours Max</span>
       </div>
     </div>
   );

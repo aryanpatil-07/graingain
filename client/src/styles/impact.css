@@ -1,7 +1,78 @@
-/* Impact Section */
-.section-impact { padding: 40px 28px; }
-.kpi-row { display:flex; gap:18px; }
-.kpi-card { flex:1; padding:22px; border-radius:16px; background: linear-gradient(145deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(120,150,240,0.06); }
-.kpi-value { font-size:22px; font-weight:800; color:#ffffff }
-.kpi-label { color:#9fb6c8; margin-top:8px }
-@media (max-width: 800px) { .kpi-row { flex-direction:column } }
+/* ==========================================================================
+   Impact Section Styles - Editorial Light Theme
+   ========================================================================== */
+
+.section-impact {
+  margin-bottom: 36px;
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.kpi-card {
+  background: #ffffff;
+  border: 1px solid #e5eae6;
+  border-radius: 20px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+  border-color: #cee7d4;
+}
+
+.kpi-card-featured {
+  background: linear-gradient(145deg, #ffffff 0%, #f4faf6 100%);
+  border-color: #cbe7d3;
+}
+
+.kpi-icon-pill {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f0f7f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.kpi-value {
+  font-family: var(--font-heading, 'Outfit', 'Plus Jakarta Sans', sans-serif);
+  font-size: clamp(28px, 2.5vw, 38px);
+  font-weight: 800;
+  color: #18181b;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.kpi-unit {
+  font-size: 16px;
+  font-weight: 600;
+  color: #52525b;
+}
+
+.kpi-label {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #52525b;
+  line-height: 1.4;
+}
+
+@media (max-width: 860px) {
+  .kpi-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

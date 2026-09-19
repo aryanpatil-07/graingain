@@ -1,56 +1,75 @@
 import React, { useEffect, useState } from 'react';
+import { animate } from 'animejs';
 import '../styles/impact.css';
 
 export default function ImpactSection({ totals }) {
   const [counts, setCounts] = useState({ waste: 0, meals: 0, methane: 0 });
 
   useEffect(() => {
-    let raf;
-    const duration = 900;
-    const start = performance.now();
-    const from = { waste: counts.waste, meals: counts.meals, methane: counts.methane };
-    const to = {
-      waste: Math.round(totals.totalWaste),
-      meals: Math.round(totals.totalSurplusMeals),
-      methane: Math.round(totals.totalMethaneRisk)
+    // Animate numbers smoothly using Anime.js
+    const obj = {
+      waste: counts.waste,
+      meals: counts.meals,
+      methane: counts.methane
     };
 
-    const tick = (now) => {
-      const t = Math.min(1, (now - start) / duration);
-      setCounts({
-        waste: Math.round(from.waste + (to.waste - from.waste) * t),
-        meals: Math.round(from.meals + (to.meals - from.meals) * t),
-        methane: Math.round(from.methane + (to.methane - from.methane) * t)
+    try {
+      animate(obj, {
+        waste: Math.round(totals.totalWaste || 0),
+        meals: Math.round(totals.totalSurplusMeals || 0),
+        methane: Math.round(totals.totalMethaneRisk || 0),
+        duration: 900,
+        ease: 'outCubic',
+        round: 1,
+        onUpdate: () => {
+          setCounts({
+            waste: Math.round(obj.waste),
+            meals: Math.round(obj.meals),
+            methane: Math.round(obj.methane)
+          });
+        }
       });
-      if (t < 1) raf = requestAnimationFrame(tick);
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    } catch (e) {
+      setCounts({
+        waste: Math.round(totals.totalWaste || 0),
+        meals: Math.round(totals.totalSurplusMeals || 0),
+        methane: Math.round(totals.totalMethaneRisk || 0)
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totals.totalWaste, totals.totalSurplusMeals, totals.totalMethaneRisk]);
 
   return (
-    <section className="section section-impact full-screen-section reveal-on-scroll">
-      <div className="section-heading-row">
-        <h2>Impact Snapshot</h2>
-        <span className="data-chip">Live simulation</span>
+    <section className="section section-impact editorial-card reveal-on-scroll" id="impact">
+      <div className="section-header-editorial">
+        <div>
+          <span className="section-kicker">REAL-TIME IMPACT METRICS</span>
+          <h2 className="section-title">Impact Snapshot</h2>
+        </div>
+        <span className="editorial-chip-badge">Live simulation</span>
       </div>
 
-      <p className="section-subtext">Immediate environmental and social benefits estimated across the network.</p>
+      <p className="section-subtext">
+        Immediate environmental and social benefits estimated across our food rescue network.
+      </p>
 
       <div className="kpi-row">
-        <div className="kpi-card">
-          <div className="kpi-value">{counts.waste} kg</div>
-          <div className="kpi-label">Estimated waste / day</div>
+        <div className="kpi-card stagger-item">
+          <div className="kpi-icon-pill">🥗</div>
+          <div className="kpi-value">{counts.waste} <span className="kpi-unit">kg</span></div>
+          <div className="kpi-label">Estimated Waste Diverted / Day</div>
         </div>
-        <div className="kpi-card">
-          <div className="kpi-value">{counts.meals}</div>
-          <div className="kpi-label">Predicted surplus meals</div>
+
+        <div className="kpi-card kpi-card-featured stagger-item">
+          <div className="kpi-icon-pill">🍲</div>
+          <div className="kpi-value">{counts.meals} <span className="kpi-unit">meals</span></div>
+          <div className="kpi-label">Predicted Surplus Meals Rescued</div>
         </div>
-        <div className="kpi-card">
-          <div className="kpi-value">{counts.methane} kg CO₂e</div>
-          <div className="kpi-label">Methane risk</div>
+
+        <div className="kpi-card stagger-item">
+          <div className="kpi-icon-pill">🌱</div>
+          <div className="kpi-value">{counts.methane} <span className="kpi-unit">kg CO₂e</span></div>
+          <div className="kpi-label">Methane Emissions Prevented</div>
         </div>
       </div>
     </section>

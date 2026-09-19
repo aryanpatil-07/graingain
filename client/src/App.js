@@ -9,6 +9,7 @@ import StoryFlow from "./components/StoryFlow";
 import { RoleSelector } from "./components/RoleSelector";
 import { LiveDeliveryTracker } from "./components/LiveDeliveryTracker";
 import { socket, joinRole, emitCreateRequest } from "./services/socket";
+import { initScrollReveal } from "./services/animations";
 import { CENTRES } from "./data/centres";
 import { RESTAURANTS } from "./data/restaurants";
 import "./App.css";
@@ -175,30 +176,11 @@ function App() {
     };
   }, [API_BASE, currentRole]);
 
-  // Scroll reveal animation observer
+  // Anime.js scroll reveal animation observer
   useEffect(() => {
-    const elements = document.querySelectorAll(".reveal-on-scroll:not(.is-visible)");
-    if (elements.length === 0) return undefined;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { root: null, threshold: 0.15, rootMargin: "0px 0px -5% 0px" }
-    );
-
-    const rafId = window.requestAnimationFrame(() => {
-      elements.forEach((element) => observer.observe(element));
-    });
-
+    const observer = initScrollReveal();
     return () => {
-      window.cancelAnimationFrame(rafId);
-      observer.disconnect();
+      if (observer && observer.disconnect) observer.disconnect();
     };
   }, [data, loading, requests]);
 
@@ -360,9 +342,31 @@ function App() {
     <div className="app-container">
       <header className="app-header">
         <div className="header-content">
-          <div>
-            <h1>GrainGain</h1>
-            <p>Data-led food rescue intelligence & real-time WebSockets surplus dispatching.</p>
+          <div className="brand-group">
+            <a href="#home" className="brand-logo">
+              <span className="brand-main">GRAIN</span><span className="brand-accent">GAIN</span>
+            </a>
+          </div>
+
+          <nav className="header-nav">
+            <a href="#home" className="nav-link">Home</a>
+            <a href="#about" className="nav-link">About</a>
+            <a href="#step-1-section" className="nav-link">Restaurant</a>
+            <a href="#step-2-section" className="nav-link">Surplus Map</a>
+            <a href="#tracker" className="nav-link">Live Tracker</a>
+          </nav>
+
+          <div className="header-actions">
+            <button
+              type="button"
+              className="btn-connect-pill"
+              onClick={() => {
+                const el = document.getElementById("tracker") || document.getElementById("step-1-section");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              Connect
+            </button>
           </div>
         </div>
       </header>
@@ -376,10 +380,17 @@ function App() {
 
       <main className="app-main">
         <HeroSection
-          input={input}
-          setInput={setInput}
-          onAnalyze={analyze}
-          loading={loading}
+          onSearchClick={() => {
+            const inputEl = document.getElementById("food-description-input");
+            if (inputEl) {
+              inputEl.focus();
+              inputEl.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          }}
+          onFindRestaurantClick={() => {
+            const el = document.getElementById("step-1-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+          }}
         />
 
         <ImpactSection totals={environmentTotals} />
@@ -387,13 +398,21 @@ function App() {
         <StoryFlow />
 
         {/* Step 1: Input section */}
-        <section className="section section-input full-screen-section reveal-on-scroll glass-panel">
-          <h2>Step 1 — Describe the Surplus Source</h2>
-          <p className="section-subtext">Type a short description and let AI estimate safety & urgency.</p>
+        <section id="step-1-section" className="section section-input editorial-card reveal-on-scroll editorial-section">
+          <div className="section-header-editorial">
+            <div>
+              <span className="section-kicker">STEP 01 — SURPLUS EVALUATION</span>
+              <h2 className="section-title">Describe the Surplus Source</h2>
+            </div>
+            <span className="editorial-chip-badge">AI Safety Scan</span>
+          </div>
+          <p className="section-subtext">Type a short description and let AI estimate safety window, shelf life & urgency.</p>
           <div className="input-group premium-input">
+            <span style={{ fontSize: "16px", paddingLeft: "8px", color: "#71717a", display: "flex", alignItems: "center" }}>🔍</span>
             <input
+              id="food-description-input"
               type="text"
-              placeholder="e.g., 15 vegetarian meals, cooked rice 2 hours ago"
+              placeholder="e.g., 25 vegetarian biryani meals, prepared 1 hour ago"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && analyze()}
@@ -409,25 +428,32 @@ function App() {
 
         {/* Step 2 & 3: Results & Map */}
         {data && (
-          <section className="section section-analysis full-screen-section reveal-on-scroll">
-            <h2>Step 2: NGO Map and Nearby Restaurants</h2>
+          <section id="step-2-section" className="section section-analysis editorial-card reveal-on-scroll editorial-section">
+            <div className="section-header-editorial">
+              <div>
+                <span className="section-kicker">STEP 02 — SPATIAL MATCHING</span>
+                <h2 className="section-title">Partner Map & Nearby Restaurants</h2>
+              </div>
+              <span className="editorial-chip-badge">GPS Routing</span>
+            </div>
+
             <div className="analysis-card">
               <div className="analysis-item">
                 <span className="label">Food Type</span>
                 <span className="value">{data.food_type}</span>
               </div>
               <div className="analysis-item">
-                <span className="label">Safe For</span>
+                <span className="label">Safe Shelf Life</span>
                 <span className="value">{data.expiry_hours.toFixed(1)} hours</span>
               </div>
               <div className="analysis-item">
-                <span className="label">Urgency</span>
+                <span className="label">Urgency Level</span>
                 <span className={`value urgency-${data.urgency.toLowerCase()}`}>{data.urgency}</span>
               </div>
             </div>
 
             <p className="section-subtext">
-              Select an NGO on the map to view nearby food providers and dispatch surplus requests.
+              Select an NGO on the interactive map to view nearby surplus providers and dispatch immediate requests.
             </p>
 
             <MapNearest
@@ -448,7 +474,7 @@ function App() {
             <div className="surplus-cards restaurant-cards">
               {topRestaurantsForSelectedNgo.length > 0 ? (
                 topRestaurantsForSelectedNgo.map((restaurant) => (
-                  <article className="surplus-card mirror-card" key={restaurant.id}>
+                  <article className="surplus-card" key={restaurant.id}>
                     <h3>{restaurant.name}</h3>
                     <p className="surplus-location">{restaurant.area} · {restaurant.distanceFromNgoKm.toFixed(1)} km from NGO</p>
                     <div className="surplus-metrics">
@@ -459,15 +485,21 @@ function App() {
                   </article>
                 ))
               ) : (
-                <article className="surplus-card mirror-card">
-                  <h3>Awaiting NGO Selection</h3>
-                  <p className="surplus-location">Click any NGO marker on the map to view nearby partners.</p>
+                <article className="surplus-card">
+                  <h3>Awaiting Partner Selection</h3>
+                  <p className="surplus-location">Click any partner marker on the map to view nearby partners.</p>
                 </article>
               )}
             </div>
 
+            <div className="section-header-editorial" style={{ marginTop: "32px" }}>
+              <div>
+                <span className="section-kicker">STEP 03 — DISPATCH SCHEDULE</span>
+                <h2 className="section-title">Schedule Pickup Timing</h2>
+              </div>
+            </div>
+
             {/* Delivery Timing Slider */}
-            <h2>Step 3: Schedule Pickup</h2>
             <DeliverySlider value={sliderHours} onChange={setSliderHours} min={0} max={24} />
 
             {/* Logistics Summary */}
@@ -484,7 +516,7 @@ function App() {
         )}
 
         {/* Real-time WebSockets Live Delivery Tracker Section */}
-        <section className="section reveal-on-scroll">
+        <section className="section editorial-section reveal-on-scroll">
           <LiveDeliveryTracker
             requests={requests}
             currentRole={currentRole}
@@ -495,14 +527,19 @@ function App() {
 
         {/* How it works state */}
         {!data && !loading && (
-          <section className="section section-empty full-screen-section reveal-on-scroll">
+          <section className="section section-empty editorial-card reveal-on-scroll editorial-section">
             <div className="empty-state">
-              <h2>How GrainGain Real-Time Rescue Works</h2>
+              <div className="section-header-editorial">
+                <div>
+                  <span className="section-kicker">WORKFLOW OVERVIEW</span>
+                  <h2 className="section-title">How GrainGain Real-Time Rescue Works</h2>
+                </div>
+              </div>
               <ol className="steps">
-                <li><strong>Describe:</strong> Enter surplus food details for AI shelf-life analysis</li>
-                <li><strong>Select NGO:</strong> Pick an NGO/shelter to match with nearby restaurants</li>
-                <li><strong>Dispatch WebSockets Request:</strong> Instantly notify NGOs & driver networks</li>
-                <li><strong>Live Track & Delays:</strong> Receive 2-way real-time updates and delay alerts</li>
+                <li><strong>Describe Surplus:</strong> Enter food surplus details for instant AI shelf-life & safety evaluation.</li>
+                <li><strong>Select Partner NGO:</strong> Pick a verified shelter or food bank to match with surplus providers.</li>
+                <li><strong>Dispatch WebSockets Request:</strong> Instantly notify NGOs and driver networks with live status sync.</li>
+                <li><strong>Live Track & Report Delays:</strong> Monitor 2-way real-time milestones from pickup to verified delivery.</li>
               </ol>
             </div>
           </section>
@@ -510,10 +547,10 @@ function App() {
       </main>
 
       <section className="section final-cta reveal-on-scroll">
-        <div className="final-cta">
+        <div className="final-cta-content">
           <h2>Make an Impact Today</h2>
-          <p className="impact-line">Request surplus food from nearby restaurants and turn excess into nourishment.</p>
-          <button className="cta-btn" onClick={handleRequestPickup}>Request Surplus Food</button>
+          <p className="impact-line">Request surplus food from nearby restaurants and turn excess into nourishment across your city.</p>
+          <button type="button" className="cta-btn" onClick={handleRequestPickup}>Request Surplus Food</button>
         </div>
       </section>
 
@@ -521,7 +558,7 @@ function App() {
 
       <footer className="app-footer">
         <p>Built with Neon PostgreSQL & Socket.io WebSockets to reduce food waste and strengthen nutrition access across cities.</p>
-        <p><small>© 2025 GrainGain. All rights reserved.</small></p>
+        <p><small>© 2026 GrainGain Network. All rights reserved.</small></p>
       </footer>
     </div>
   );

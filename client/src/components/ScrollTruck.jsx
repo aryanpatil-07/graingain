@@ -11,7 +11,7 @@ export function ScrollTruck() {
       const scrolled = window.scrollY;
       const newProgress = scrollHeight > 0 ? Math.min(1, scrolled / scrollHeight) : 0;
       setProgress(newProgress);
-    }, 30);
+    }, 25);
 
     window.addEventListener('scroll', handleScroll, { passive: true });
 
@@ -20,21 +20,25 @@ export function ScrollTruck() {
     };
   }, []);
 
-  // Translate from left: 0% (off-screen left) to 100% (off-screen right)
   const pct = Math.max(0, Math.min(1, progress));
 
   return (
     <div className="scroll-truck-container" aria-hidden="true">
-      <div
-        className="scroll-truck"
-        style={{
-          left: `${pct * 100}%`,
-          transform: `translateX(-50%)`
-        }}
-      >
-        <div className="truck-icon" />
+      <div className="scroll-truck-track">
+        <div
+          className="scroll-truck-scooter"
+          style={{
+            left: `${pct * 100}%`,
+            transform: `translateX(-50%)`
+          }}
+        >
+          <div className="scooter-visual">
+            <span className="scooter-emoji">🛵</span>
+          </div>
+        </div>
       </div>
-      <div className="scroll-progress-indicator">
+      <div className="scroll-progress-badge">
+        <span className="progress-dot"></span>
         {Math.round(pct * 100)}%
       </div>
     </div>

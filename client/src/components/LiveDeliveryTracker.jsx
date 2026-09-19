@@ -28,16 +28,17 @@ export function LiveDeliveryTracker({ requests, currentRole, latestAlert, clearA
   };
 
   return (
-    <div className="live-delivery-tracker glass-panel">
-      <div className="tracker-header">
+    <div className="live-delivery-tracker editorial-card" id="tracker">
+      <div className="section-header-editorial">
         <div>
-          <h2>🛰️ Real-Time Food Delivery Dispatcher</h2>
-          <p className="subtitle">
-            2-Way WebSocket channel connecting Restaurants, Hotels & NGOs with live status updates.
+          <span className="section-kicker">TWO-WAY WEBSOCKET DISPATCHING</span>
+          <h2 className="section-title">Live Delivery Dispatcher</h2>
+          <p className="section-subtext" style={{ margin: "4px 0 0" }}>
+            Real-time channel connecting Restaurants, Shelters & Couriers with instant status synchronization.
           </p>
         </div>
-        <div className="live-pill">
-          <span className="live-dot pulse"></span> LIVE SYNC
+        <div className="live-pill-badge">
+          <span className="live-dot-pulse"></span> LIVE SYNC
         </div>
       </div>
 
@@ -58,10 +59,10 @@ export function LiveDeliveryTracker({ requests, currentRole, latestAlert, clearA
       )}
 
       {requests.length === 0 ? (
-        <div className="empty-tracker">
-          <div className="empty-icon">📦</div>
-          <h3>No Surplus Requests Active</h3>
-          <p>Submit a surplus food description above to trigger real-time dispatching.</p>
+        <div className="empty-tracker-box">
+          <div className="empty-tracker-icon">📦</div>
+          <h3>No Active Surplus Requests</h3>
+          <p>Describe surplus food above or select a partner NGO on the map to trigger live dispatching.</p>
         </div>
       ) : (
         <div className="requests-grid">
@@ -73,39 +74,39 @@ export function LiveDeliveryTracker({ requests, currentRole, latestAlert, clearA
               <div key={req.id} className={`tracker-card ${isDelayed ? "card-delayed" : ""}`}>
                 <div className="tracker-card-header">
                   <div className="req-title-group">
-                    <span className="req-id">Request #{req.id}</span>
-                    <h3>{req.food_type}</h3>
+                    <span className="req-id-badge">Request #{req.id}</span>
+                    <h3 className="req-food-name">{req.food_type}</h3>
                   </div>
-                  <div className={`status-badge status-${req.status.toLowerCase()}`}>
+                  <div className={`status-badge-pill status-${req.status.toLowerCase()}`}>
                     {isDelayed ? `⚠️ DELAYED (+${req.delay_minutes || 0}m)` : req.status}
                   </div>
                 </div>
 
                 <div className="req-details-grid">
                   <div className="detail-box">
-                    <span className="label">Destination NGO</span>
-                    <span className="val highlight">{req.ngo_name || "Helping Hands"}</span>
+                    <span className="detail-label">Recipient NGO</span>
+                    <span className="detail-val highlight">{req.ngo_name || "Helping Hands"}</span>
                   </div>
                   <div className="detail-box">
-                    <span className="label">Safe For</span>
-                    <span className="val">{req.expiry_hours ? Number(req.expiry_hours).toFixed(1) : 4} hrs</span>
+                    <span className="detail-label">Shelf Life Safe</span>
+                    <span className="detail-val">{req.expiry_hours ? Number(req.expiry_hours).toFixed(1) : 4} hrs</span>
                   </div>
                   <div className="detail-box">
-                    <span className="label">Urgency Level</span>
-                    <span className={`val urgency-${(req.urgency || "MEDIUM").toLowerCase()}`}>
+                    <span className="detail-label">Urgency</span>
+                    <span className={`detail-val urgency-${(req.urgency || "MEDIUM").toLowerCase()}`}>
                       {req.urgency || "MEDIUM"}
                     </span>
                   </div>
                   <div className="detail-box">
-                    <span className="label">Estimated Pickup ETA</span>
-                    <span className="val">{req.eta_minutes ? req.eta_minutes + (req.delay_minutes || 0) : 30} mins</span>
+                    <span className="detail-label">Estimated Transit</span>
+                    <span className="detail-val">{req.eta_minutes ? req.eta_minutes + (req.delay_minutes || 0) : 30} mins</span>
                   </div>
                 </div>
 
                 {req.description && (
-                  <p className="req-description">
-                    <strong>Details:</strong> "{req.description}"
-                  </p>
+                  <div className="req-description-box">
+                    <strong>Surplus Notes:</strong> "{req.description}"
+                  </div>
                 )}
 
                 {/* Status Stepper */}
@@ -143,7 +144,8 @@ export function LiveDeliveryTracker({ requests, currentRole, latestAlert, clearA
                 <div className="tracker-actions">
                   {req.status === "PENDING" && (
                     <button
-                      className="btn-action btn-accept"
+                      type="button"
+                      className="btn-tracker-action btn-accept"
                       onClick={() => handleStatusChange(req.id, "ACCEPTED", "NGO Accepted Surplus Request")}
                     >
                       ✓ Accept Pickup Request
@@ -152,7 +154,8 @@ export function LiveDeliveryTracker({ requests, currentRole, latestAlert, clearA
 
                   {req.status === "ACCEPTED" && (
                     <button
-                      className="btn-action btn-transit"
+                      type="button"
+                      className="btn-tracker-action btn-transit"
                       onClick={() => handleStatusChange(req.id, "IN_TRANSIT", "Food Picked Up & In Transit")}
                     >
                       🚚 Mark In Transit
@@ -161,7 +164,8 @@ export function LiveDeliveryTracker({ requests, currentRole, latestAlert, clearA
 
                   {(req.status === "IN_TRANSIT" || req.status === "ACCEPTED" || req.status === "DELAYED") && (
                     <button
-                      className="btn-action btn-delay"
+                      type="button"
+                      className="btn-tracker-action btn-delay"
                       onClick={() => setDelayInputId(delayInputId === req.id ? null : req.id)}
                     >
                       ⚠️ Report Delay
@@ -170,7 +174,8 @@ export function LiveDeliveryTracker({ requests, currentRole, latestAlert, clearA
 
                   {(req.status === "IN_TRANSIT" || req.status === "DELAYED") && (
                     <button
-                      className="btn-action btn-complete"
+                      type="button"
+                      className="btn-tracker-action btn-complete"
                       onClick={() => handleStatusChange(req.id, "DELIVERED", "Food Delivered to NGO Shelter Successfully")}
                     >
                       🎉 Confirm Delivery
@@ -204,10 +209,10 @@ export function LiveDeliveryTracker({ requests, currentRole, latestAlert, clearA
                       </label>
                     </div>
                     <div className="delay-form-actions">
-                      <button className="btn-confirm-delay" onClick={() => handleReportDelay(req.id)}>
+                      <button type="button" className="btn-confirm-delay" onClick={() => handleReportDelay(req.id)}>
                         Send WebSocket Delay Alert
                       </button>
-                      <button className="btn-cancel-delay" onClick={() => setDelayInputId(null)}>
+                      <button type="button" className="btn-cancel-delay" onClick={() => setDelayInputId(null)}>
                         Cancel
                       </button>
                     </div>

@@ -1,83 +1,92 @@
+/* ==========================================================================
+   Scroll Truck / Scooter Styles - Editorial Light Theme
+   ========================================================================== */
+
 .scroll-truck-container {
   position: fixed;
-  bottom: 14px;
+  bottom: 12px;
   left: 24px;
   right: 24px;
-  height: 56px;
+  height: 48px;
   pointer-events: none;
   z-index: 90;
 }
 
-.scroll-truck {
+.scroll-truck-track {
   position: absolute;
-  bottom: 8px;
+  bottom: 14px;
+  left: 0;
+  right: 80px;
+  height: 3px;
+  background: rgba(24, 24, 27, 0.08);
+  border-radius: 9999px;
+}
+
+.scroll-truck-scooter {
+  position: absolute;
+  bottom: -13px;
   will-change: left, transform;
-  transition: left 0.08s linear;
+  transition: left 0.06s linear;
 }
 
-.truck-icon {
-  position: relative;
-  width: 52px;
-  height: 20px;
-  border-radius: 4px;
-  background: linear-gradient(135deg, #17d7e3, #5dd8ff);
-  box-shadow: 0 4px 12px rgba(23, 215, 227, 0.35);
+.scooter-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: #18181b;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 2px solid #ffffff;
 }
 
-.truck-icon::before {
-  content: "";
-  position: absolute;
-  right: -14px;
-  top: 5px;
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  background: linear-gradient(135deg, #6e63ff, #9189ff);
+.scooter-emoji {
+  font-size: 17px;
+  line-height: 1;
 }
 
-.truck-icon::after {
-  content: "";
-  position: absolute;
-  left: 7px;
-  bottom: -8px;
-  width: 40px;
-  height: 8px;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(23, 215, 227, 0.6) 0%, rgba(23, 215, 227, 0) 70%);
-}
-
-.scroll-progress-indicator {
+.scroll-progress-badge {
   position: fixed;
-  bottom: 18px;
-  right: 20px;
-  background-color: rgba(11, 24, 43, 0.78);
-  color: #d9ecff;
-  border: 1px solid rgba(23, 215, 227, 0.4);
-  padding: 8px 12px;
-  border-radius: 20px;
+  bottom: 16px;
+  right: 24px;
+  background-color: #18181b;
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 9999px;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   pointer-events: auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
 }
 
 @media (max-width: 768px) {
   .scroll-truck-container {
-    left: 10px;
-    right: 10px;
+    left: 12px;
+    right: 12px;
   }
 
-  .scroll-progress-indicator {
-    bottom: 16px;
-    right: 16px;
-    padding: 6px 10px;
+  .scroll-progress-badge {
+    bottom: 12px;
+    right: 12px;
+    padding: 5px 10px;
     font-size: 11px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scroll-truck {
+  .scroll-truck-scooter {
     display: none;
   }
 }
